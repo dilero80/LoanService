@@ -8,6 +8,7 @@ import org.w3c.dom.ls.LSOutput;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
 
@@ -15,7 +16,7 @@ public class UserService {
 
     Scanner read = new Scanner(System.in, StandardCharsets.ISO_8859_1).useDelimiter("\n");
     UserDAO dao = new UserDAO();
-    ArrayList<User> users = new ArrayList<>();
+    List<User> users = new ArrayList<>();
     public UserService() {
     }
 
@@ -30,7 +31,7 @@ public class UserService {
         user.setId(read.nextInt());
         user.setLoans(new ArrayList<Loan>());
         try {
-            dao.saveUser(user);
+            dao.save(user);
             this.addUserToList(user);
         } catch (Exception e) {
             System.out.println("User Creation error on SQL");
@@ -44,9 +45,9 @@ public class UserService {
         User user = new User();
         System.out.println("============DELETE USER================");
         System.out.println("Digit User ID to Delete");
-        user = dao.findUserById(read.nextInt());
+        user = dao.getById(String.valueOf(read.nextInt()));
         try {
-            dao.deleteUser(user);
+            dao.delete(user);
             System.out.println(user);
             this.users.remove(user);
         } catch (Exception e) {
@@ -61,7 +62,7 @@ public class UserService {
      }
 
      public void getUserList() throws Exception {
-        this.users = dao.getUsers();
+        this.users = dao.getList();
         System.out.println(this.users);
      }
 
@@ -72,7 +73,7 @@ public class UserService {
      private User findUserById (String id) throws Exception {
 
         try {
-             return dao.findUserById(Integer.valueOf(id));
+             return dao.getById(id);
          } catch (Exception e) {
              throw new RuntimeException(e);
          }
@@ -85,7 +86,7 @@ public class UserService {
             User user = new User();
             System.out.println("============UPDATE USER================");
             System.out.println("Digit User ID to Update");
-            user = dao.findUserById(read.nextInt());
+            user = dao.getById(read.next());
             int lastId = user.getId();
             int listPos = users.indexOf(user);
             System.out.println("Digit new Name");
@@ -94,7 +95,7 @@ public class UserService {
             user.setSurname(read.next());
             System.out.println("Digit new ID");
             user.setId(read.nextInt());
-            dao.updatedUser(user,lastId);
+            dao.update(user, String.valueOf(lastId));
             users.set(listPos,user);
             System.out.println("User Updated");
         }
@@ -104,6 +105,6 @@ public class UserService {
     }
 
     public Optional<User> getUserById (int id) throws Exception {
-        return Optional.ofNullable(dao.findUserById(id));
+        return Optional.ofNullable(dao.getById(String.valueOf(id)));
     }
 }

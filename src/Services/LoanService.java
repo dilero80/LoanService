@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class LoanService {
     Scanner read = new Scanner(System.in, StandardCharsets.ISO_8859_1).useDelimiter("\n");
-    ArrayList<Loan> loans;
+    List<Loan> loans;
     LibMaterialService libMaterialService = new LibMaterialService();
     LoanDAO dao = new LoanDAO();
     UserService us = new UserService();
@@ -36,7 +36,7 @@ public class LoanService {
         loan.setLoanDate(LocalDate.now());
         loan.setReturnDate(LocalDate.of(3000,12,31));
         loans.add(loan);
-        dao.saveLoan(loan);
+        dao.save(loan);
         return true;
     }
 
@@ -46,7 +46,7 @@ public class LoanService {
         getLoansList();
         System.out.println("DIGIT LOAN ID");
         id = read.nextInt();
-        loan = Optional.ofNullable(dao.getLoanById(id));
+        loan = Optional.ofNullable(dao.getById(String.valueOf(id)));
         System.out.println(loan);
         if (loan.isPresent()){
             LibMaterial libMaterial = loan.get().getLoanMaterial();
@@ -137,8 +137,8 @@ public class LoanService {
         return userId.get().getId();
 
     }
-    public ArrayList<Loan> getLoansList() throws Exception {
-        return dao.getLoans();
+    public List<Loan> getLoansList() throws Exception {
+        return dao.getList();
 
     }
     public void printList(){
