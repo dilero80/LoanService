@@ -6,15 +6,19 @@ import Entities.User;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserDAO extends DAO{
+public class UserDAO extends DAO<User>{
 
-    public void saveUser(User u) throws Exception {
+    public UserDAO() {
+    }
+
+    @Override
+    public void save(User user) throws Exception {
         try {
-            if (u == null) {
+            if (user == null) {
                 throw new Exception("User can't be null");
             }
             String sql = "INSERT INTO users (userId, name, surname) "
-                    + "VALUES ( " + u.getId()+ " , '" + u.getName() + "' ,'" + u.getSurname() + "');";
+                    + "VALUES ( " + user.getId()+ " , '" + user.getName() + "' ,'" + user.getSurname() + "');";
 
             System.out.println(sql);
             insertModifyDelete(sql);
@@ -25,12 +29,13 @@ public class UserDAO extends DAO{
         }
     }
 
-    public void deleteUser(User u) throws Exception {
+    @Override
+    public void delete(User user) throws Exception {
         try {
-            if (u == null) {
+            if (user == null) {
                 throw new Exception("User can't be null");
             }
-            String sql = "DELETE FROM users WHERE userId = " + u.getId();
+            String sql = "DELETE FROM users WHERE userId = " + user.getId();
             System.out.println(sql);
             insertModifyDelete(sql);
         } catch (Exception e) {
@@ -40,7 +45,27 @@ public class UserDAO extends DAO{
         }
     }
 
-    public User findUserById(Integer id) throws Exception {
+    @Override
+    public void update(User user, String lastId) throws Exception {
+        try {
+            if (user == null) {
+                throw new Exception("User can't be null");
+            }
+            String sql = "'UPDATE users SET" +
+                    "userId =" + user.getId() +"name ='" + user.getName() + "', surname = '" + user.getSurname() + "'" +
+                    "WHERE id = " + lastId;
+
+            System.out.println(sql);
+            insertModifyDelete(sql);
+        } catch (Exception e) {
+            throw e;
+        } finally {
+            disconnectDB();
+        }
+    }
+
+    @Override
+    public User getById(String id) throws Exception {
         User user = new User();
         try {
             if (id == null) {
@@ -49,9 +74,9 @@ public class UserDAO extends DAO{
             String sql = "SELECT * FROM users WHERE userId = " + id;
             consultDB(sql);
             while (resultSet.next()) {
-                user.setId(Integer.valueOf(resultSet.getString(0)));
-                user.setName(resultSet.getString(1));
-                user.setSurname(resultSet.getString(2));
+                user.setId(Integer.valueOf(resultSet.getString(2)));
+                user.setName(resultSet.getString(3));
+                user.setSurname(resultSet.getString(4));
             }
             return user;
         } catch (Exception e) {
@@ -61,22 +86,24 @@ public class UserDAO extends DAO{
         }
     }
 
-    public List<User> getUsers(Integer id) throws Exception {
-        List<User> users= new ArrayList<>();
+    @Override
+    public ArrayList<User> getList() throws Exception {
+        ArrayList<User> users= new ArrayList<>();
         List <Loan> loans = new ArrayList<>();
-        User user = new User();
         LoanDAO lsDAO = new LoanDAO();
         try {
-            if (id == null) {
-                throw new Exception("ID can't be null");
-            }
             String sql = "SELECT * FROM users";
             consultDB(sql);
+
             while (resultSet.next()) {
-                user.setId(Integer.valueOf(resultSet.getString(0)));
-                user.setName(resultSet.getString(1));
-                user.setSurname(resultSet.getString(2));
-                user.setLoans(lsDAO.getLoansByUserId(id));
+                User user = new User();
+                user.setId(resultSet.getInt(2));
+                user.setName(resultSet.getString(3));
+                user.setSurname(resultSet.getString(4));
+                //user.setLoans(lsDAO.getLoansByUserId(user.getId()));
+                user.setLoans(null);
+                System.out.println(user);
+                users.add(user);
             }
             return users;
         } catch (Exception e) {

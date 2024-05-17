@@ -1,9 +1,12 @@
 package Persistence;
 
+import Entities.Audio;
+import Entities.LibMaterial;
+
 import java.sql.*;
 import java.util.*;
 
-public abstract class DAO {
+public abstract class DAO<T> {
     protected Connection connection;
     protected ResultSet resultSet;
     protected Statement statement;
@@ -16,7 +19,7 @@ public abstract class DAO {
     protected void connectDB() throws Exception {
         try {
             Class.forName(DRIVER);
-            String urlDB = DBURL + DATABASE + "?useSSL=false";
+            String urlDB = DBURL + DATABASE + "?useSSL=true&requireSSL=true";
             connection = DriverManager.getConnection(urlDB, USER, PASSWORD);
         } catch (ClassNotFoundException | SQLException ex) {
             throw ex;
@@ -70,6 +73,18 @@ public abstract class DAO {
             throw ex;
         }
     }
+
+    public abstract void save(T object) throws Exception;
+
+    public abstract void delete(T object) throws Exception;
+
+    public abstract void update(T object, String lastId) throws Exception;
+
+    public abstract T getById(String id) throws Exception;
+
+    public abstract List<T> getList() throws Exception;
+
+
 
 
 
